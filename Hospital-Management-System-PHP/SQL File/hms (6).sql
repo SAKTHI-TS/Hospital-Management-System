@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 22, 2025 at 11:55 AM
+-- Generation Time: Apr 07, 2025 at 10:43 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -67,7 +67,11 @@ CREATE TABLE `appointment` (
 
 INSERT INTO `appointment` (`id`, `doctorSpecialization`, `doctorId`, `userId`, `consultancyFees`, `appointmentDate`, `appointmentTime`, `postingDate`, `userStatus`, `doctorStatus`, `updationDate`) VALUES
 (1, 'ENT', 1, 1, 500, '2024-05-30', '9:15 AM', '2024-05-15 03:42:11', 1, 1, NULL),
-(2, 'Endocrinologists', 2, 2, 800, '2024-05-31', '2:45 PM', '2024-05-16 09:08:54', 1, 1, NULL);
+(2, 'Endocrinologists', 2, 2, 800, '2024-05-31', '2:45 PM', '2024-05-16 09:08:54', 1, 1, NULL),
+(3, 'Pediatrics', 4, 1, 700, '2025-03-25', '3:15 PM', '2025-03-25 09:36:40', 1, 1, NULL),
+(4, 'ENT', 1, 1, 500, '2025-03-25', '3:15 PM', '2025-03-25 09:37:03', 0, 1, '2025-03-25 09:38:54'),
+(5, 'ENT', 1, 1, 500, '2025-03-25', '1:30 PM', '2025-03-25 09:44:01', 1, 1, NULL),
+(6, 'ENT', 1, 1, 500, '2025-03-27', '3:30 PM', '2025-03-25 09:51:18', 1, 1, NULL);
 
 -- --------------------------------------------------------
 
@@ -127,7 +131,11 @@ INSERT INTO `doctorslog` (`id`, `uid`, `username`, `userip`, `loginTime`, `logou
 (4, 1, 'anujk123@test.com', 0x3a3a3100000000000000000000000000, '2025-03-20 09:54:22', NULL, 1),
 (5, 1, 'anujk123@test.com', 0x3a3a3100000000000000000000000000, '2025-03-20 16:57:35', NULL, 1),
 (6, NULL, 'anujk123@test.com', 0x3a3a3100000000000000000000000000, '2025-03-21 05:00:25', NULL, 0),
-(7, 1, 'anujk123@test.com', 0x3a3a3100000000000000000000000000, '2025-03-21 05:00:38', NULL, 1);
+(7, 1, 'anujk123@test.com', 0x3a3a3100000000000000000000000000, '2025-03-21 05:00:38', NULL, 1),
+(8, 1, 'anujk123@test.com', 0x3a3a3100000000000000000000000000, '2025-03-25 07:22:26', NULL, 1),
+(9, 1, 'anujk123@test.com', 0x3a3a3100000000000000000000000000, '2025-03-25 09:35:01', NULL, 1),
+(10, NULL, 'johndoe12@test.com', 0x3a3a3100000000000000000000000000, '2025-03-25 09:50:23', NULL, 0),
+(11, NULL, 'johndoe12@test.com', 0x3a3a3100000000000000000000000000, '2025-03-25 11:00:48', NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -184,8 +192,8 @@ CREATE TABLE `medicines` (
 --
 
 INSERT INTO `medicines` (`id`, `medicine_name`, `batch_number`, `expiry_date`, `quantity_available`, `price_per_unit`, `pharmacy_id`) VALUES
-(1, 'Paracetamol', 'BATCH001', '2024-12-31', 185, 5.00, 1),
-(2, 'Ibuprofen', 'BATCH002', '2025-06-30', 97, 10.00, 1),
+(1, 'Paracetamol', 'BATCH001', '2024-12-31', 60, 5.00, 1),
+(2, 'Ibuprofen', 'BATCH002', '2025-06-30', 30, 10.00, 1),
 (3, 'dolo650', 'BATCH_90', '2026-05-05', 100, 5.00, 1);
 
 -- --------------------------------------------------------
@@ -239,7 +247,10 @@ INSERT INTO `pharmacylog` (`id`, `uid`, `username`, `userip`, `status`, `logtime
 (5, 1, 'citypharmacy@example.com', '::1', 1, '2025-03-20 19:17:08'),
 (6, 1, 'citypharmacy@example.com', '::1', 1, '2025-03-21 03:28:33'),
 (7, 1, 'citypharmacy@example.com', '::1', 1, '2025-03-22 03:46:14'),
-(8, 1, 'citypharmacy@example.com', '::1', 1, '2025-03-22 10:36:40');
+(8, 1, 'citypharmacy@example.com', '::1', 1, '2025-03-22 10:36:40'),
+(9, 1, 'citypharmacy@example.com', '::1', 1, '2025-03-25 09:35:42'),
+(10, 1, 'citypharmacy@example.com', '::1', 1, '2025-04-07 03:51:21'),
+(11, 1, 'citypharmacy@example.com', '::1', 1, '2025-04-07 07:21:51');
 
 -- --------------------------------------------------------
 
@@ -255,18 +266,21 @@ CREATE TABLE `prescriptions` (
   `details` text NOT NULL,
   `status` enum('Pending','Processed','Delivered') DEFAULT 'Pending',
   `pharmacy_id` int(11) DEFAULT NULL,
-  `total_amount` decimal(10,2) DEFAULT 0.00
+  `total_amount` decimal(10,2) DEFAULT 0.00,
+  `payment_status` varchar(200) NOT NULL,
+  `payment_date` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `prescriptions`
 --
 
-INSERT INTO `prescriptions` (`id`, `patient_id`, `doctor_id`, `prescription_date`, `details`, `status`, `pharmacy_id`, `total_amount`) VALUES
-(1, 1, 1, '2024-03-20', '', 'Delivered', NULL, 50.00),
-(2, 2, 1, '2025-03-21', 'fdgvbgrtb', 'Pending', NULL, 50.00),
-(3, 1, 4, '2025-03-21', '121c21vbn,', 'Pending', NULL, 200.00),
-(4, 1, 1, '2025-03-21', 'hiiiii', 'Processed', NULL, 55.00);
+INSERT INTO `prescriptions` (`id`, `patient_id`, `doctor_id`, `prescription_date`, `details`, `status`, `pharmacy_id`, `total_amount`, `payment_status`, `payment_date`) VALUES
+(1, 1, 1, '2024-03-20', '', 'Delivered', NULL, 0.00, 'Paid', '2025-04-07 07:03:08'),
+(2, 2, 1, '2025-03-21', 'fdgvbgrtb', 'Processed', NULL, 50.00, 'Paid', '2025-04-07 06:45:57'),
+(3, 1, 4, '2025-03-21', '121c21vbn,', 'Delivered', NULL, 200.00, 'Paid', '2025-04-07 06:47:46'),
+(4, 1, 1, '2025-03-21', 'hiiiii', 'Delivered', NULL, 55.00, 'Paid', '2025-04-07 07:16:46'),
+(5, 1, 1, '2025-03-25', 'dfghj', 'Delivered', NULL, 50.00, 'Paid', '2025-04-07 06:46:02');
 
 -- --------------------------------------------------------
 
@@ -290,7 +304,8 @@ INSERT INTO `prescription_medicines` (`id`, `prescription_id`, `medicine_id`, `q
 (2, 2, 1, 10),
 (3, 3, 2, 20),
 (4, 4, 1, 5),
-(5, 4, 2, 3);
+(5, 4, 2, 3),
+(6, 5, 1, 10);
 
 -- --------------------------------------------------------
 
@@ -417,7 +432,15 @@ CREATE TABLE `userlog` (
 
 INSERT INTO `userlog` (`id`, `uid`, `username`, `userip`, `loginTime`, `logout`, `status`) VALUES
 (1, 1, 'johndoe12@test.com', 0x3a3a3100000000000000000000000000, '2024-05-15 03:41:48', NULL, 1),
-(2, 2, 'amitk@gmail.com', 0x3a3a3100000000000000000000000000, '2024-05-16 09:08:06', '16-05-2024 02:41:06 PM', 1);
+(2, 2, 'amitk@gmail.com', 0x3a3a3100000000000000000000000000, '2024-05-16 09:08:06', '16-05-2024 02:41:06 PM', 1),
+(3, 1, 'johndoe12@test.com', 0x3a3a3100000000000000000000000000, '2025-03-25 07:20:00', NULL, 1),
+(4, 1, 'johndoe12@test.com', 0x3a3a3100000000000000000000000000, '2025-03-25 07:41:54', NULL, 1),
+(5, 1, 'johndoe12@test.com', 0x3a3a3100000000000000000000000000, '2025-03-25 07:44:38', NULL, 1),
+(6, 1, 'johndoe12@test.com', 0x3a3a3100000000000000000000000000, '2025-03-25 08:47:31', NULL, 1),
+(7, 1, 'johndoe12@test.com', 0x3a3a3100000000000000000000000000, '2025-03-25 09:36:00', NULL, 1),
+(8, NULL, 'johndoe12@test.com', 0x3a3a3100000000000000000000000000, '2025-03-25 09:43:27', NULL, 0),
+(9, NULL, 'johndoe12@test.com', 0x3a3a3100000000000000000000000000, '2025-03-25 11:00:18', NULL, 0),
+(10, NULL, 'johndoe12@test.com', 0x3a3a3100000000000000000000000000, '2025-03-25 11:00:28', NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -562,7 +585,7 @@ ALTER TABLE `admin`
 -- AUTO_INCREMENT for table `appointment`
 --
 ALTER TABLE `appointment`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `doctors`
@@ -574,7 +597,7 @@ ALTER TABLE `doctors`
 -- AUTO_INCREMENT for table `doctorslog`
 --
 ALTER TABLE `doctorslog`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `doctorspecilization`
@@ -598,19 +621,19 @@ ALTER TABLE `pharmacy`
 -- AUTO_INCREMENT for table `pharmacylog`
 --
 ALTER TABLE `pharmacylog`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `prescriptions`
 --
 ALTER TABLE `prescriptions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `prescription_medicines`
 --
 ALTER TABLE `prescription_medicines`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `tblcontactus`
@@ -640,7 +663,7 @@ ALTER TABLE `tblpatient`
 -- AUTO_INCREMENT for table `userlog`
 --
 ALTER TABLE `userlog`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `users`
